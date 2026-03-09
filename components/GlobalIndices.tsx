@@ -27,7 +27,7 @@ function marketStatus(changePercent: number): { label: string; color: string } {
 
 interface GlobalIndicesProps {
   avKey?: string;
-  indices: IndexQuote[] | null;
+  indices?: IndexQuote[] | null;
 }
 
 function SkeletonCard() {
@@ -45,7 +45,7 @@ function SkeletonCard() {
 }
 
 export default function GlobalIndices({ avKey, indices }: GlobalIndicesProps) {
-  const hasLiveData = indices !== null && indices.some((i) => i.price > 0);
+  const hasLiveData = indices != null && indices.some((i) => i.price > 0);
 
   return (
     <div className="flex flex-col gap-3">
@@ -60,7 +60,7 @@ export default function GlobalIndices({ avKey, indices }: GlobalIndicesProps) {
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        {indices === null
+        {!indices
           ? Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} />)
           : indices.map((idx) => {
               const isVix = idx.symbol === "VIXY";
