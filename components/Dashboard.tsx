@@ -29,6 +29,7 @@ import { analyzeRealizedPnL } from "@/lib/realizedpnl";
 import { analyzeBenchmark } from "@/lib/benchmark";
 import GlobalIndices from "@/components/GlobalIndices";
 import { STORAGE_KEYS, getStoredKey } from "@/lib/apikeys";
+import type { IndexQuote } from "@/app/api/indices/route";
 import type { PortfolioSummary, OrdersPage, DividendsPage } from "@/types/trading212";
 import type { PortfolioRisk } from "@/lib/risk";
 import type { ProjectionPoint } from "@/lib/projection";
@@ -67,6 +68,7 @@ export default function Dashboard() {
   const [customRate, setCustomRate] = useState<number | null>(null);
   const [customRateInput, setCustomRateInput] = useState<string>("");
   const [avKey, setAvKey] = useState<string>("");
+  const [indices, setIndices] = useState<IndexQuote[] | null>(null);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -118,6 +120,18 @@ export default function Dashboard() {
   useEffect(() => {
     setAvKey(getStoredKey(STORAGE_KEYS.ALPHA_VANTAGE));
   }, [settingsVersion]);
+
+  // Fetch global indices whenever AV key is available
+  useEffect(() => {
+    const controller = new AbortController();
+    const headers: Record<string, string> = {};
+    if (avKey) headers["X-Alpha-Vantage-Key"] = avKey;
+    fetch("/api/indices", { headers, signal: controller.signal })
+      .then((r) => r.json())
+      .then((data) => setIndices(data.indices ?? null))
+      .catch(() => {});
+    return () => controller.abort();
+  }, [avKey]);
 
   useEffect(() => {
     if (!portfolio) return;
@@ -707,7 +721,7 @@ export default function Dashboard() {
 
         {/* ── Global Markets ── */}
         <div className="rounded-2xl p-5 sm:p-6" style={glass}>
-          <GlobalIndices avKey={avKey} />
+          <GlobalIndices avKey={avKey} indices={indices} />
         </div>
 
         {/* ── Portfolio vs Benchmark ── */}
