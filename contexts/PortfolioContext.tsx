@@ -147,6 +147,11 @@ export function PortfolioProvider({ children }: { children: ReactNode }) {
 
   // ── Portfolio (live prices — always fresh) ──────────────────────────────
   useEffect(() => {
+    // Skip portfolio fetch on the connect page to avoid a redirect loop
+    if (typeof window !== "undefined" && window.location.pathname === "/connect") {
+      setLoading(false);
+      return;
+    }
     const controller = new AbortController();
     fetch("/api/portfolio", { signal: controller.signal })
       .then((r) => {
