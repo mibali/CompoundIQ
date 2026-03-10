@@ -15,6 +15,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "API key is required" }, { status: 400 });
   }
 
+  // Reject obviously malformed keys before hitting the T212 network
+  if (apiKey.length < 20 || apiKey.length > 512 || !/^[\w\-]+$/.test(apiKey)) {
+    return NextResponse.json({ error: "API key format is invalid" }, { status: 400 });
+  }
+
   // Validate the key live against T212 — if this succeeds, the key is good
   try {
     const info = await getAccountInfo(apiKey);

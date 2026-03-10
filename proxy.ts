@@ -4,7 +4,7 @@ import type { NextRequest } from "next/server";
 // Public paths that don't require a T212 session
 const PUBLIC_PATHS = ["/connect", "/api/session/connect"];
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Allow public paths through
